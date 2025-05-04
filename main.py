@@ -9,12 +9,16 @@ from cubes import BasicRedCube
 from cubes import BasicYellowCube
 from cubes import BasicOrangeCube
 
+
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
         self.game = False
         self.bg = arcade.load_texture('bgs/mainBg.png')
         self.basic_orange_cube = BasicOrangeCube()
+        self.basic_blue_cube = BasicBlueCube()
+        self.basic_red_cube = BasicRedCube()
+        self.basic_yellow_cube = BasicYellowCube()
         self.stinger = Stinger()
         self.jump = False
         self.lobby_bg = arcade.load_texture('bgs/gmdMenu2.png')
@@ -26,6 +30,7 @@ class Game(arcade.Window):
         self.death_sound = arcade.load_sound('sounds/geometry-dash-death-sound-effect.mp3')
         self.menu_sound = arcade.load_sound('sounds/gmd_menu_sound.mp3')
         self.click_sound = arcade.load_sound('sounds/gmdClickSound.mp3')
+        self.create_bg = False
 
     def setup(self):
         pass
@@ -42,20 +47,12 @@ class Game(arcade.Window):
         if not self.game:
             arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT,
                                           self.lobby_bg)
-
-            # arcade.draw_rectangle_filled(
-            #     ZONE_X_2 + ZONE_WIDTH_2 / 2,
-            #     ZONE_Y_2 + ZONE_HEIGHT_2 / 2,
-            #     ZONE_WIDTH_2,
-            #     ZONE_HEIGHT_2,
-            #     arcade.color.LIGHT_BLUE)
-            #
-            # arcade.draw_rectangle_filled(
-            #     ZONE_X_1 + ZONE_WIDTH_1 / 2,
-            #     ZONE_Y_1 + ZONE_HEIGHT_1 / 2,
-            #     ZONE_WIDTH_1,
-            #     ZONE_HEIGHT_1,
-            #     arcade.color.LIGHT_YELLOW)
+        if self.create_bg:
+            arcade.draw_text('Your cube is:', 507, 718, (0, 0, 0), 50)
+            arcade.draw_text('X', 34, 755, (0, 0, 0), 20)
+            self.basic_blue_cube.draw()
+            self.basic_yellow_cube.draw()
+            self.basic_red_cube.draw()
 
     def update(self, delta_time):
         self.basic_orange_cube.update()
@@ -87,9 +84,7 @@ class Game(arcade.Window):
             time.sleep(1.5)
             self.basic_orange_cube.alpha = 255
         # if not self.game:
-            # arcade.play_sound(self.menu_sound, 0.5)
-
-
+        # arcade.play_sound(self.menu_sound, 0.5)
 
     def on_key_press(self, key, modifiers):
         if self.game:
@@ -97,20 +92,26 @@ class Game(arcade.Window):
                 if self.basic_orange_cube.center_y <= GROUND_Y:
                     self.basic_orange_cube.angle = 0
                     self.basic_orange_cube.change_y = CUBE_JUMP
-                    self.basic_orange_cube.change_angle = 8.5
+                    self.basic_orange_cube.change_angle = 4
         if key == arcade.key.E:
             self.game = True
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if ZONE_X_2 <= x <= ZONE_X_2 + ZONE_WIDTH_2 and ZONE_Y_2 <= y <= ZONE_Y_2 + ZONE_HEIGHT_2:
+        if ZONE_X_1 <= x <= ZONE_X_1 + ZONE_WIDTH_1 and ZONE_Y_1 <= y <= ZONE_Y_1 + ZONE_HEIGHT_1:
             print('aa')
             arcade.play_sound(self.click_sound, 0.5)
             self.game = True
         print(x, y)
-        if ZONE_X_1 <= x <= ZONE_X_1 + ZONE_WIDTH_1 and ZONE_Y_1 <= y <= ZONE_Y_1 + ZONE_HEIGHT_1:
+        if ZONE_X_2 <= x <= ZONE_X_2 + ZONE_WIDTH_2 and ZONE_Y_2 <= y <= ZONE_Y_2 + ZONE_HEIGHT_2:
+            self.create_bg = True
             arcade.play_sound(self.click_sound, 0.5)
             self.lobby_bg = self.creating
-
+        if ZONE_X_3 <= x <= ZONE_X_3 + ZONE_WIDTH_3 and ZONE_Y_3 <= y <= ZONE_Y_3 + ZONE_HEIGHT_3:
+            self.basic_blue_cube.center_x = 695
+            self.basic_blue_cube.center_y = 627
+        if ZONE_X_4 <= x <= ZONE_X_4 + ZONE_WIDTH_4 and ZONE_Y_4 <= y <= ZONE_Y_4 + ZONE_HEIGHT_4:
+            self.create_bg = False
+            self.creating = self.lobby_bg
 
 
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)

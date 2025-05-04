@@ -20,9 +20,6 @@ class Cubes(arcade.Sprite):
         else:
             self.angle = -LIMIT_ANGLE
             self.change_angle = 0
-        # if self.angle <= -LIMIT_ANGLE:
-        #     self.angle = -LIMIT_ANGLE
-        #     self.change_angle = 0
 
 
 class BasicOrangeCube(Cubes):
@@ -37,21 +34,21 @@ class BasicBlueCube(Cubes):
     def __init__(self):
         super().__init__('cubes/b_blue_c.png')
         self.append_texture(arcade.load_texture('cubes/b_blue_c.png'))
-        self.center_x = 156
-        self.center_y = 171
+        self.center_x = 334
+        self.center_y = 370
 
 
 class BasicYellowCube(Cubes):
     def __init__(self):
         super().__init__('cubes/b_yellow_c.png')
         self.append_texture(arcade.load_texture('cubes/b_yellow_c.png'))
-        self.center_x = 156
-        self.center_y = 171
+        self.center_x = 405
+        self.center_y = 370
 
 
 class BasicRedCube(Cubes):
     def __init__(self):
         super().__init__('cubes/b_red_c.png')
         self.append_texture(arcade.load_texture('cubes/b_red_c.png'))
-        self.center_x = 156
-        self.center_y = 171
+        self.center_x = 476
+        self.center_y = 370
