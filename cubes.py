@@ -15,8 +15,14 @@ class Cubes(arcade.Sprite):
             self.change_y = 175
             self.change_y = 0
         self.angle -= self.change_angle
-        if self.angle <= -LIMIT_ANGLE:
+        if self.angle > -LIMIT_ANGLE:
+            self.angle -= self.change_angle
+        else:
             self.angle = -LIMIT_ANGLE
+            self.change_angle = 0
+        # if self.angle <= -LIMIT_ANGLE:
+        #     self.angle = -LIMIT_ANGLE
+        #     self.change_angle = 0
 
 
 class BasicOrangeCube(Cubes):

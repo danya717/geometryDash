@@ -9,7 +9,6 @@ from cubes import BasicRedCube
 from cubes import BasicYellowCube
 from cubes import BasicOrangeCube
 
-
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
@@ -96,6 +95,7 @@ class Game(arcade.Window):
         if self.game:
             if key == arcade.key.SPACE:
                 if self.basic_orange_cube.center_y <= GROUND_Y:
+                    self.basic_orange_cube.angle = 0
                     self.basic_orange_cube.change_y = CUBE_JUMP
                     self.basic_orange_cube.change_angle = 8.5
         if key == arcade.key.E:
@@ -108,7 +108,8 @@ class Game(arcade.Window):
             self.game = True
         print(x, y)
         if ZONE_X_1 <= x <= ZONE_X_1 + ZONE_WIDTH_1 and ZONE_Y_1 <= y <= ZONE_Y_1 + ZONE_HEIGHT_1:
-            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, self.creating)
+            arcade.play_sound(self.click_sound, 0.5)
+            self.lobby_bg = self.creating
 
 
 
