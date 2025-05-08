@@ -11,6 +11,12 @@
 #     self.angle = -LIMIT_ANGLE
 #     self.change_angle = 0
 
+# arcade.draw_rectangle_filled(
+#     ZONE_X_5 + ZONE_WIDTH_5 / 2,
+#     ZONE_Y_5 + ZONE_HEIGHT_5 / 2,
+#     ZONE_WIDTH_5,
+#     ZONE_HEIGHT_5,
+#     arcade.color.LIGHT_BLUE)
 
 # arcade.draw_rectangle_filled(
 #     ZONE_X_4 + ZONE_WIDTH_4 / 2,
