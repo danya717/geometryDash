@@ -9,30 +9,38 @@ from cubes import BasicRedCube
 from cubes import BasicYellowCube
 from cubes import BasicOrangeCube
 from stinger import Stinger2
+from blocks import BasicBlock2
 
 
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
-        self.game = False
         self.bg = arcade.load_texture('bgs/mainBg.png')
+        self.lobby_bg = arcade.load_texture('bgs/gmdMenu2.png')
+        self.creating = arcade.load_texture('bgs/creator.png')
+        self.loading = arcade.load_texture('bgs/loading.png')
         self.basic_orange_cube = BasicOrangeCube()
         self.basic_blue_cube = BasicBlueCube()
         self.basic_red_cube = BasicRedCube()
         self.basic_yellow_cube = BasicYellowCube()
         self.stinger = Stinger()
-        self.jump = False
-        self.lobby_bg = arcade.load_texture('bgs/gmdMenu2.png')
-        self.attempts = 0
-        self.cube_apper_time = time.time()
-        self.basic_cube_exp = BasicCubeExp()
+        self.stinger2 = Stinger2()
         self.basic_block = BasicBlock()
-        self.creating = arcade.load_texture('bgs/creator.png')
+        self.basic_block2 = BasicBlock2()
+        self.cube_apper_time = time.time()
+        self.next_bg_time = time.time()
+        self.line_reducer_time = time.time()
         self.death_sound = arcade.load_sound('sounds/geometry-dash-death-sound-effect.mp3')
         self.menu_sound = arcade.load_sound('sounds/gmd_menu_sound.mp3')
         self.click_sound = arcade.load_sound('sounds/gmdClickSound.mp3')
+        self.line_reducer = 40
+        self.lvl_line_reducer = 70
+        self.game = False
+        self.active = False
+        self.load = False
         self.create_bg = False
-        self.stinger2 = Stinger2()
+        self.jump = False
+        self.attempts = 0
 
     def setup(self):
         pass
@@ -40,16 +48,27 @@ class Game(arcade.Window):
     def on_draw(self):
         if self.game:
             self.clear()
+            indent = 10 * self.lvl_line_reducer
             arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT, self.bg)
-            arcade.draw_text(f'Attempt: {int(self.attempts)}', SCREEN_WIDTH - 850, SCREEN_HEIGHT - 100, (255, 255, 255),
+            arcade.draw_text(f'Attempt: {int(self.attempts)}', 500, 650, (255, 255, 255),
                              65)
+            arcade.draw_rectangle_filled(700 - indent / 2, 785, 700 - indent, 15, (55, 55, 55))
+            arcade.draw_rectangle_outline(700, 785, 700, 15, (255, 255, 255), 1)
             self.basic_orange_cube.draw()
             self.stinger.draw()
             self.basic_block.draw()
             self.stinger2.draw()
+            self.basic_block2.draw()
         if not self.game:
+            self.load = True
+            indent = 12.5 * self.line_reducer
             arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT,
-                                          self.lobby_bg)
+                                          self.loading)
+            arcade.draw_rectangle_filled(690 - indent / 2, 266, 500 - indent, 15, (0, 255, 255))
+            arcade.draw_rectangle_outline(690, 266, 500, 15, (255, 255, 0), 2)
+            if time.time() - self.next_bg_time > 5.5:
+                arcade.draw_texture_rectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            self.lobby_bg)
 
         if self.create_bg:
             arcade.draw_text('Your cube is:', 507, 718, (0, 0, 0), 50)
@@ -67,30 +86,43 @@ class Game(arcade.Window):
             self.stinger2.change_x = STINGER_MOVE
             self.basic_block.update()
             self.basic_block.change_x = STINGER_MOVE
+            self.basic_block2.update()
+            self.basic_block2.change_x = STINGER_MOVE
         if self.stinger.center_x < SCREEN_WIDTH - 1500:
             self.stinger.center_x = 1370
         if self.stinger2.center_x < SCREEN_WIDTH - 1500:
             self.stinger2.center_x = self.stinger.center_x + 200
+        if self.basic_block.center_x < SCREEN_WIDTH - 1500:
+            self.basic_block.center_x = 1800
+        if self.basic_block2.center_x < SCREEN_WIDTH - 1500:
+            self.basic_block2.center_x = self.basic_block.center_x + 50
         if arcade.check_for_collision(self.stinger, self.basic_orange_cube):
             self.basic_orange_cube.alpha = 0
             self.cube_apper_time = time.time()
             self.stinger.center_x = 1370
             self.stinger2.center_x = self.stinger.center_x + 200
-            self.basic_block.center_x = 800
+            self.basic_block.center_x = 1800
+            self.basic_block2.center_x = 1850
             self.attempts += 1
+            self.lvl_line_reducer = 70
             arcade.play_sound(self.death_sound, 1)
         if arcade.check_for_collision(self.stinger2, self.basic_orange_cube):
             self.basic_orange_cube.alpha = 0
             self.cube_apper_time = time.time()
             self.stinger.center_x = 1370
             self.stinger2.center_x = self.stinger.center_x + 200
-            self.basic_block.center_x = 800
+            self.basic_block.center_x = 1800
+            self.basic_block2.center_x = 1850
             self.attempts += 1
+            self.lvl_line_reducer = 70
             arcade.play_sound(self.death_sound, 1)
         if self.basic_orange_cube.alpha == 0 and time.time() - self.cube_apper_time > 0.01:
             time.sleep(1.5)
             self.basic_orange_cube.alpha = 255
-            self.basic_cube_exp.draw()
+        if arcade.check_for_collision(self.basic_orange_cube, self.basic_block):
+            self.basic_orange_cube.center_y = self.basic_block.center_y + 100
+        if arcade.check_for_collision(self.basic_orange_cube, self.basic_block2):
+            self.basic_orange_cube.center_y = self.basic_block2.center_y + 100
         # if self.basic_orange_cube.right > self.basic_block. eft:
         #     self.basic_orange_cube.alpha = 0
         #     self.cube_apper_time = time.time()
@@ -102,6 +134,21 @@ class Game(arcade.Window):
             self.basic_orange_cube.alpha = 255
         # if not self.game:
         # arcade.play_sound(self.menu_sound, 0.5)
+        if not self.game:
+            if time.time() - self.line_reducer_time > 1:
+                self.line_reducer = 38
+                if time.time() - self.line_reducer_time > 2:
+                    self.line_reducer = 28
+                    if time.time() - self.line_reducer_time > 3:
+                        self.line_reducer = 15
+                        if time.time() - self.line_reducer_time > 4:
+                            self.line_reducer = 9
+                            if time.time() - self.line_reducer_time > 5:
+                                self.line_reducer = 0
+        if self.game:
+            if self.lvl_line_reducer > 0:
+                if time.time() - self.line_reducer_time > 1:
+                    self.lvl_line_reducer -= 0.08
 
     def on_key_press(self, key, modifiers):
         if self.game:
