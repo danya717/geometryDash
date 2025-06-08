@@ -10,6 +10,9 @@ from cubes import BasicYellowCube
 from cubes import BasicOrangeCube
 from stinger import Stinger2
 from blocks import BasicBlock2
+from blocks import BlockBarrier
+from portals import FlyPortal
+from planes import OrangePlane
 
 
 class Game(arcade.Window):
@@ -19,6 +22,7 @@ class Game(arcade.Window):
         self.lobby_bg = arcade.load_texture('bgs/gmdMenu2.png')
         self.creating = arcade.load_texture('bgs/creator.png')
         self.loading = arcade.load_texture('bgs/loading.png')
+        # self.orange_plane = arcade.load_texture('bgs/orng_cube_plane.png')
         self.basic_orange_cube = BasicOrangeCube()
         self.basic_blue_cube = BasicBlueCube()
         self.basic_red_cube = BasicRedCube()
@@ -27,6 +31,9 @@ class Game(arcade.Window):
         self.stinger2 = Stinger2()
         self.basic_block = BasicBlock()
         self.basic_block2 = BasicBlock2()
+        self.block_barrier = BlockBarrier()
+        self.fly_portal = FlyPortal()
+        self.orange_plane = OrangePlane()
         self.cube_apper_time = time.time()
         self.next_bg_time = time.time()
         self.line_reducer_time = time.time()
@@ -41,6 +48,8 @@ class Game(arcade.Window):
         self.create_bg = False
         self.jump = False
         self.attempts = 0
+        self.plane_show = False
+        self.cube_show = False
 
     def setup(self):
         pass
@@ -54,11 +63,21 @@ class Game(arcade.Window):
                              65)
             arcade.draw_rectangle_filled(700 - indent / 2, 785, 700 - indent, 15, (55, 55, 55))
             arcade.draw_rectangle_outline(700, 785, 700, 15, (255, 255, 255), 1)
-            self.basic_orange_cube.draw()
+            if self.cube_show:
+                self.basic_orange_cube.draw()
+                self.plane_show = False
+            if self.plane_show:
+                self.orange_plane.draw()
+                self.cube_show = False
             self.stinger.draw()
             self.basic_block.draw()
             self.stinger2.draw()
             self.basic_block2.draw()
+            self.block_barrier.draw()
+            self.fly_portal.draw()
+            self.cube_show = True
+            self.plane_show = False
+            #     arcade.draw_scaled_texture_rectangle(100, 100, self.orange_plane)
         if not self.game:
             self.load = True
             indent = 12.5 * self.line_reducer
@@ -88,6 +107,13 @@ class Game(arcade.Window):
             self.basic_block.change_x = STINGER_MOVE
             self.basic_block2.update()
             self.basic_block2.change_x = STINGER_MOVE
+            self.block_barrier.update()
+            self.block_barrier.change_x = STINGER_MOVE
+            self.fly_portal.update()
+            self.fly_portal.change_x = STINGER_MOVE
+            if self.plane_show:
+                self.orange_plane.update()
+                self.orange_plane.change_x = STINGER_MOVE
         if self.stinger.center_x < SCREEN_WIDTH - 1500:
             self.stinger.center_x = 1370
         if self.stinger2.center_x < SCREEN_WIDTH - 1500:
@@ -96,16 +122,18 @@ class Game(arcade.Window):
             self.basic_block.center_x = 1800
         if self.basic_block2.center_x < SCREEN_WIDTH - 1500:
             self.basic_block2.center_x = self.basic_block.center_x + 50
-        if arcade.check_for_collision(self.stinger, self.basic_orange_cube):
-            self.basic_orange_cube.alpha = 0
-            self.cube_apper_time = time.time()
-            self.stinger.center_x = 1370
-            self.stinger2.center_x = self.stinger.center_x + 200
-            self.basic_block.center_x = 1800
-            self.basic_block2.center_x = 1850
-            self.attempts += 1
-            self.lvl_line_reducer = 70
-            arcade.play_sound(self.death_sound, 1)
+        if not self.cube_show:
+            if arcade.check_for_collision(self.stinger, self.basic_orange_cube):
+                self.basic_orange_cube.alpha = 0
+                self.cube_apper_time = time.time()
+                self.stinger.center_x = 1370
+                self.stinger2.center_x = self.stinger.center_x + 200
+                self.basic_block.center_x = 1800
+                self.basic_block2.center_x = 1850
+                self.block_barrier.center_x = 1795
+                self.attempts += 1
+                self.lvl_line_reducer = 70
+                arcade.play_sound(self.death_sound, 1)
         if arcade.check_for_collision(self.stinger2, self.basic_orange_cube):
             self.basic_orange_cube.alpha = 0
             self.cube_apper_time = time.time()
@@ -113,22 +141,33 @@ class Game(arcade.Window):
             self.stinger2.center_x = self.stinger.center_x + 200
             self.basic_block.center_x = 1800
             self.basic_block2.center_x = 1850
+            self.block_barrier.center_x = 1795
             self.attempts += 1
             self.lvl_line_reducer = 70
             arcade.play_sound(self.death_sound, 1)
         if self.basic_orange_cube.alpha == 0 and time.time() - self.cube_apper_time > 0.01:
             time.sleep(1.5)
             self.basic_orange_cube.alpha = 255
+        # if arcade.check_for_collision(self.basic_orange_cube, self.basic_block):
+        #     self.basic_orange_cube.center_y = self.basic_block.center_y + 100
+        # if arcade.check_for_collision(self.basic_orange_cube, self.basic_block2):
+        #     self.basic_orange_cube.center_y = self.basic_block2.center_y + 100
+        if arcade.check_for_collision(self.basic_orange_cube, self.block_barrier):
+            self.basic_orange_cube.alpha = 0
+            self.cube_apper_time = time.time()
+            self.stinger.center_x = 1370
+            self.basic_block.center_x = 1800
+            self.basic_block2.center_x = 1850
+            self.block_barrier.center_x = 1745
+            self.attempts += 1
         if arcade.check_for_collision(self.basic_orange_cube, self.basic_block):
             self.basic_orange_cube.center_y = self.basic_block.center_y + 100
-        if arcade.check_for_collision(self.basic_orange_cube, self.basic_block2):
-            self.basic_orange_cube.center_y = self.basic_block2.center_y + 100
-        # if self.basic_orange_cube.right > self.basic_block. eft:
-        #     self.basic_orange_cube.alpha = 0
-        #     self.cube_apper_time = time.time()
-        #     self.stinger.center_x = 1370
-        #     self.basic_block.center_x = 800
-        #     self.attempts += 1
+        # if arcade.check_for_collision(self.basic_orange_cube, self.fly_portal):
+        if self.basic_orange_cube.right > self.fly_portal.left:
+            if self.game:
+                self.plane_show = True
+                self.cube_show = False
+
         if self.basic_orange_cube.alpha == 0 and time.time() - self.cube_apper_time > 0.01:
             time.sleep(1.5)
             self.basic_orange_cube.alpha = 255
@@ -168,6 +207,7 @@ class Game(arcade.Window):
                         self.basic_orange_cube.angle = 0
                         self.basic_orange_cube.change_y = CUBE_JUMP
                         self.basic_orange_cube.change_angle = 3.5
+
         if not self.game:
             if ZONE_X_1 <= x <= ZONE_X_1 + ZONE_WIDTH_1 and ZONE_Y_1 <= y <= ZONE_Y_1 + ZONE_HEIGHT_1:
                 print('aa')
@@ -187,7 +227,10 @@ class Game(arcade.Window):
                 self.basic_red_cube.center_y = 370
             if ZONE_X_4 <= x <= ZONE_X_4 + ZONE_WIDTH_4 and ZONE_Y_4 <= y <= ZONE_Y_4 + ZONE_HEIGHT_4:
                 self.create_bg = False
+                print(self.creating.name)
                 self.creating = self.lobby_bg
+                print(self.creating.name)
+
             if ZONE_X_5 <= x <= ZONE_X_5 + ZONE_WIDTH_5 and ZONE_Y_5 <= y <= ZONE_Y_5 + ZONE_HEIGHT_5:
                 print('hi')
                 self.basic_blue_cube.center_x = 334

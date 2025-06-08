@@ -23,3 +23,13 @@ class BasicBlock2(Blocks):
         self.append_texture(arcade.load_texture('bgs/block-Photoroom.png'))
         self.center_x = 1850
         self.center_y = 130
+
+class BlockBarrier(arcade.Sprite):
+    def __init__(self):
+        super().__init__('bgs/block_barrier.png', 0.9)
+        self.center_x = 1745
+        self.center_y = 135
+        self.alpha = 0
+
+    def update(self):
+        self.center_x -= self.change_x
